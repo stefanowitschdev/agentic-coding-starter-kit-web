@@ -21,10 +21,23 @@ async function main() {
     .name('create-agentic-app')
     .description('Scaffold a new agentic AI application')
     .argument('[project-directory]', 'Project directory name (use "." for current directory)')
+    .option('-y, --yes', 'Auto-confirm non-empty directory prompt')
+    .option('-p, --package-manager <manager>', 'Package manager to use: pnpm | npm | yarn')
+    .option('--skip-install', 'Skip dependency installation')
+    .option('--skip-git', 'Skip git repository initialization')
     .parse(process.argv);
 
   const args = program.args;
+  const opts = program.opts();
   let projectDir = args[0] || '.';
+
+  // Validate --package-manager value if provided
+  const validPackageManagers = ['pnpm', 'npm', 'yarn'];
+  if (opts.packageManager && !validPackageManagers.includes(opts.packageManager)) {
+    console.log(chalk.red(`Invalid package manager: "${opts.packageManager}"`));
+    console.log(chalk.yellow(`Valid options: ${validPackageManagers.join(', ')}`));
+    process.exit(1);
+  }
 
   // Resolve the target directory
   const targetDir = path.resolve(process.cwd(), projectDir);
@@ -34,36 +47,46 @@ async function main() {
   if (fs.existsSync(targetDir)) {
     const files = fs.readdirSync(targetDir);
     if (files.length > 0 && projectDir !== '.') {
-      const { proceed } = await prompts({
-        type: 'confirm',
-        name: 'proceed',
-        message: `Directory "${projectDir}" is not empty. Continue anyway?`,
-        initial: false
-      });
+      if (opts.yes) {
+        console.log(chalk.yellow(`Directory "${projectDir}" is not empty. Proceeding (--yes).`));
+      } else {
+        const { proceed } = await prompts({
+          type: 'confirm',
+          name: 'proceed',
+          message: `Directory "${projectDir}" is not empty. Continue anyway?`,
+          initial: false
+        });
 
-      if (!proceed) {
-        console.log(chalk.yellow('Cancelled.'));
-        process.exit(0);
+        if (!proceed) {
+          console.log(chalk.yellow('Cancelled.'));
+          process.exit(0);
+        }
       }
     }
   }
 
-  // Prompt for package manager
-  const { packageManager } = await prompts({
-    type: 'select',
-    name: 'packageManager',
-    message: 'Which package manager do you want to use?',
-    choices: [
-      { title: 'pnpm (recommended)', value: 'pnpm' },
-      { title: 'npm', value: 'npm' },
-      { title: 'yarn', value: 'yarn' }
-    ],
-    initial: 0
-  });
+  // Determine package manager
+  let packageManager;
+  if (opts.packageManager) {
+    packageManager = opts.packageManager;
+  } else {
+    const response = await prompts({
+      type: 'select',
+      name: 'packageManager',
+      message: 'Which package manager do you want to use?',
+      choices: [
+        { title: 'pnpm (recommended)', value: 'pnpm' },
+        { title: 'npm', value: 'npm' },
+        { title: 'yarn', value: 'yarn' }
+      ],
+      initial: 0
+    });
+    packageManager = response.packageManager;
 
-  if (!packageManager) {
-    console.log(chalk.yellow('Cancelled.'));
-    process.exit(0);
+    if (!packageManager) {
+      console.log(chalk.yellow('Cancelled.'));
+      process.exit(0);
+    }
   }
 
   console.log();
@@ -122,43 +145,51 @@ async function main() {
     spinner.succeed(chalk.green('Project created successfully!'));
 
     // Install dependencies
-    console.log();
-    const installSpinner = ora(`Installing dependencies with ${packageManager}...`).start();
+    if (opts.skipInstall) {
+      console.log(chalk.yellow('\nSkipping dependency installation (--skip-install).'));
+    } else {
+      console.log();
+      const installSpinner = ora(`Installing dependencies with ${packageManager}...`).start();
 
-    try {
-      const installCmd = packageManager === 'yarn' ? 'yarn install' : `${packageManager} install`;
-      execSync(installCmd, {
-        cwd: targetDir,
-        stdio: 'pipe'
-      });
-      installSpinner.succeed(chalk.green('Dependencies installed!'));
-    } catch (error) {
-      installSpinner.fail(chalk.red('Failed to install dependencies'));
-      console.log(chalk.yellow(`\nPlease run "${packageManager} install" manually.\n`));
-    }
-
-    // Initialize Git repository
-    console.log();
-    const gitSpinner = ora('Initializing Git repository...').start();
-
-    try {
-      // Check if git is available
-      execSync('git --version', { stdio: 'pipe' });
-
-      // Initialize git repo if not already initialized
-      if (!fs.existsSync(path.join(targetDir, '.git'))) {
-        execSync('git init', { cwd: targetDir, stdio: 'pipe' });
-        execSync('git add .', { cwd: targetDir, stdio: 'pipe' });
-        execSync('git commit -m "Initial commit from create-agentic-app"', {
+      try {
+        const installCmd = packageManager === 'yarn' ? 'yarn install' : `${packageManager} install`;
+        execSync(installCmd, {
           cwd: targetDir,
           stdio: 'pipe'
         });
-        gitSpinner.succeed(chalk.green('Git repository initialized!'));
-      } else {
-        gitSpinner.info(chalk.blue('Git repository already exists'));
+        installSpinner.succeed(chalk.green('Dependencies installed!'));
+      } catch (error) {
+        installSpinner.fail(chalk.red('Failed to install dependencies'));
+        console.log(chalk.yellow(`\nPlease run "${packageManager} install" manually.\n`));
       }
-    } catch (error) {
-      gitSpinner.warn(chalk.yellow('Git not found - skipping repository initialization'));
+    }
+
+    // Initialize Git repository
+    if (opts.skipGit) {
+      console.log(chalk.yellow('\nSkipping git initialization (--skip-git).'));
+    } else {
+      console.log();
+      const gitSpinner = ora('Initializing Git repository...').start();
+
+      try {
+        // Check if git is available
+        execSync('git --version', { stdio: 'pipe' });
+
+        // Initialize git repo if not already initialized
+        if (!fs.existsSync(path.join(targetDir, '.git'))) {
+          execSync('git init', { cwd: targetDir, stdio: 'pipe' });
+          execSync('git add .', { cwd: targetDir, stdio: 'pipe' });
+          execSync('git commit -m "Initial commit from create-agentic-app"', {
+            cwd: targetDir,
+            stdio: 'pipe'
+          });
+          gitSpinner.succeed(chalk.green('Git repository initialized!'));
+        } else {
+          gitSpinner.info(chalk.blue('Git repository already exists'));
+        }
+      } catch (error) {
+        gitSpinner.warn(chalk.yellow('Git not found - skipping repository initialization'));
+      }
     }
 
     // Display next steps

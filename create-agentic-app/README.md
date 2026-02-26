@@ -16,6 +16,27 @@ Create a new project in a subdirectory:
 npx create-agentic-app@latest my-app
 ```
 
+### Non-Interactive Mode (for CI/CD and coding agents)
+
+All prompts can be bypassed with CLI flags, enabling fully automated project scaffolding:
+
+```bash
+# Full non-interactive setup
+npx create-agentic-app@latest my-app -y -p pnpm
+
+# Skip install and git init for faster scaffolding
+npx create-agentic-app@latest my-app -y -p npm --skip-install --skip-git
+```
+
+#### Available Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--yes` | `-y` | Auto-confirm non-empty directory prompt |
+| `--package-manager <manager>` | `-p` | Package manager to use: `pnpm`, `npm`, or `yarn` |
+| `--skip-install` | | Skip dependency installation |
+| `--skip-git` | | Skip git repository initialization |
+
 ## What's Included
 
 This starter kit includes:
