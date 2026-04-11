@@ -61,7 +61,10 @@ async function copyWithExclusions(src, dest) {
     if (entry.isDirectory()) {
       await copyWithExclusions(srcPath, destPath);
     } else {
-      await fs.copy(srcPath, destPath, { overwrite: true });
+      // dereference: true follows symlinks (e.g. .claude/skills/* → .agents/skills/*)
+      // and copies the target as real files. Without this, the copy would try to
+      // recreate the symlink, which fails on Windows without admin/Developer Mode.
+      await fs.copy(srcPath, destPath, { overwrite: true, dereference: true });
     }
   }
 }
