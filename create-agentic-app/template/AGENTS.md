@@ -1,0 +1,1 @@
+- Lean towards using the available skills, over making assumptions and relying on your own training
