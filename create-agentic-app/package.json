@@ -1,6 +1,6 @@
 {
   "name": "create-agentic-app",
-  "version": "1.1.49",
+  "version": "1.1.50",
   "description": "Scaffold a new agentic AI application with Next.js, Better Auth, and AI SDK",
   "type": "module",
   "bin": {
@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "sync": "node scripts/sync-templates.js",
-    "prepublishOnly": "npm run sync"
+    "prepublishOnly": "npm run sync",
+    "publish:token": "node scripts/publish-with-token.js"
   },
   "keywords": [
     "ai",

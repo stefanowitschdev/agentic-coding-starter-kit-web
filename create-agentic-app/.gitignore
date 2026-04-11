@@ -3,5 +3,6 @@ node_modules
 .DS_Store
 .env
 .env.local
+.npmrc.publish-temp
 setup-template.sh
 setup-template.ps1
