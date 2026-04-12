@@ -21,6 +21,10 @@ If you start down the wrong path, stop, invoke the right skill, and continue fro
 
 | If you are about to… | Invoke first |
 | --- | --- |
+| Plan a feature, create a spec, break work into tasks | `create-spec` |
+| Implement a planned feature, execute a spec | `implement-feature` |
+| Create a checkpoint commit | `checkpoint` |
+| Review a pull request | `review-pr` |
 | Touch Next.js App Router, routing, RSC, data fetching, deployment | `nextjs` |
 | Touch shadcn/ui components or registries | `shadcn` |
 | Touch Better Auth configuration or auth flows | `better-auth-best-practices` |
