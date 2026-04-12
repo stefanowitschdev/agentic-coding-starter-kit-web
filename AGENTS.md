@@ -1,3 +1,7 @@
+## Planning mode
+
+Never make assumptions about what the user wants. Always ask clarifying questions before proceeding.
+
 # Project Agent Instructions
 
 ## Skills
