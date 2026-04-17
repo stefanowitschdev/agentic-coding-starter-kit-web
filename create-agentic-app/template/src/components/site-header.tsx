@@ -15,10 +15,10 @@ export function SiteHeader() {
       </a>
       <header className="border-b" role="banner">
         <nav
-          className="container mx-auto px-4 py-4 flex justify-between items-center"
+          className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center"
           aria-label="Main navigation"
         >
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-xl sm:text-2xl font-bold">
             <Link
               href="/"
               className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
@@ -35,7 +35,7 @@ export function SiteHeader() {
               </span>
             </Link>
           </h1>
-          <div className="flex items-center gap-4" role="group" aria-label="User actions">
+          <div className="flex items-center gap-2 sm:gap-4" role="group" aria-label="User actions">
             <UserProfile />
             <ModeToggle />
           </div>

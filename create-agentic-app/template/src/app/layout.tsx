@@ -89,7 +89,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider
           attribute="class"
@@ -98,7 +98,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SiteHeader />
-          <main id="main-content">{children}</main>
+          <main id="main-content" className="flex-1">{children}</main>
           <SiteFooter />
           <Toaster richColors position="top-right" />
         </ThemeProvider>
