@@ -23,6 +23,7 @@
 
 - Whenever you make changes to the database schema, ALWAYS run the drizzle generate and migrate commands
 - NEVER run drizzle push!
+- For all ID columns NOT related to BetterAuth, use UUID for the ID columns and be randomly generated
 
 ## TESTING
 
