@@ -44,6 +44,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The CLI copies the starter files, installs dependencies with your selected package manager, and prepares the environment file. If you use `npm`, replace the `pnpm` commands above with `npm run`.
 
+## Guided Setup with Claude Code (Optional)
+
+If you use Claude Code, you can install the `create-agentic-app` skill and have Claude walk you through the entire setup — folder strategy, package manager, PostgreSQL (Docker / Neon / Vercel / BYO), `.env` config, migrations, optional integrations (OpenRouter, Vercel Blob, Polar, email), build verification, and dev-server check — ending at a verified `http://localhost:3000`.
+
+Install the skill:
+
+```bash
+npx skills add leonvanzyl/agentic-coding-starter-kit@create-agentic-app --agent claude-code
+```
+
+The `--agent claude-code` flag is required. Without it, the installer drops the skill into 37+ IDE adapter folders at the project root.
+
+Once installed, ask Claude something like:
+
+```text
+Scaffold a new Agentic Coding Starter Kit project here.
+```
+
+Claude will run the skill end-to-end and ask you the few decisions it actually needs to make.
+
 ## Prerequisites
 
 - Node.js 18 or newer
@@ -359,7 +379,7 @@ Ask your agent to add Google OAuth through Better Auth while keeping email/passw
 
 Watch the original walkthrough:
 
-[Agentic Coding Boilerplate Tutorial](https://youtu.be/JQ86N3WOAh4)
+[Agentic Coding Boilerplate Tutorial](https://youtu.be/zVZotTk6ZWU)
 
 Some details in older videos may differ from the current starter. This README is the source of truth for the current default workflow.
 

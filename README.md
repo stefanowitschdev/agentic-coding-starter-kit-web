@@ -379,7 +379,7 @@ Ask your agent to add Google OAuth through Better Auth while keeping email/passw
 
 Watch the original walkthrough:
 
-[Agentic Coding Boilerplate Tutorial](https://youtu.be/JQ86N3WOAh4)
+[Agentic Coding Boilerplate Tutorial](https://youtu.be/zVZotTk6ZWU)
 
 Some details in older videos may differ from the current starter. This README is the source of truth for the current default workflow.
 
