@@ -48,7 +48,25 @@ export function useDiagnostics() {
   }
 
   useEffect(() => {
-    fetchDiagnostics();
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/diagnostics", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = (await res.json()) as DiagnosticsResponse;
+        if (!cancelled) setData(json);
+      } catch (e) {
+        if (!cancelled)
+          setError(
+            e instanceof Error ? e.message : "Failed to load diagnostics",
+          );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const isAuthReady =
