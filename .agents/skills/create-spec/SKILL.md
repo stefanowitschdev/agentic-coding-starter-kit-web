@@ -69,7 +69,7 @@ specs/{feature-name}/
 ├── requirements.md
 ├── action-required.md
 └── tasks/
-    ���── task-01-{name}.md
+    ├── task-01-{name}.md
     ├── task-02-{name}.md
     └── ...
 ```
@@ -77,7 +77,7 @@ specs/{feature-name}/
 Read the templates in `references/` before writing each file:
 - `references/readme-template.md` — for the README (dependency graph, wave table, status tracking)
 - `references/task-template.md` — for each task file (self-contained with all context)
-- `references/requirements-template.md` ��� for the requirements document
+- `references/requirements-template.md` — for the requirements document
 - `references/action-required-template.md` — for manual human steps
 
 Task files are numbered with zero-padded two-digit prefixes in topological order: Wave 1 tasks first, then Wave 2, etc. Within a wave, order is arbitrary but stable.
