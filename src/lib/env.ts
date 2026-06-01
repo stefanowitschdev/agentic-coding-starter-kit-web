@@ -17,12 +17,22 @@ const serverEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
-  // AI
+  // AI (optional module — chat features are disabled when unset)
   OPENROUTER_API_KEY: z.string().optional(),
   OPENROUTER_MODEL: z.string().default("openai/gpt-5-mini"),
 
-  // Storage
-  BLOB_READ_WRITE_TOKEN: z.string().optional(),
+  // Transactional email (Resend). Falls back to console logging when unset.
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+
+  // S3-compatible object storage (Hetzner Object Storage, MinIO, AWS, R2, …).
+  // Falls back to local filesystem storage when unset.
+  S3_ENDPOINT: z.string().url().optional(),
+  S3_REGION: z.string().optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  S3_BUCKET: z.string().optional(),
+  S3_PUBLIC_URL: z.string().url().optional(),
 
   // App
   NODE_ENV: z
@@ -36,6 +46,7 @@ const serverEnvSchema = z.object({
  */
 const clientEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_APP_NAME: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -66,6 +77,7 @@ export function getServerEnv(): ServerEnv {
 export function getClientEnv(): ClientEnv {
   const parsed = clientEnvSchema.safeParse({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
   });
 
   if (!parsed.success) {
@@ -101,11 +113,19 @@ export function checkEnv(): void {
   }
 
   if (!process.env.OPENROUTER_API_KEY) {
-    warnings.push("OPENROUTER_API_KEY is not set. AI chat will not work.");
+    warnings.push("OPENROUTER_API_KEY is not set. AI chat (optional module) will not work.");
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    warnings.push("BLOB_READ_WRITE_TOKEN is not set. Using local storage for file uploads.");
+  if (!process.env.RESEND_API_KEY) {
+    warnings.push("RESEND_API_KEY is not set. Transactional emails will be logged to the console.");
+  }
+
+  if (
+    !process.env.S3_BUCKET ||
+    !process.env.S3_ACCESS_KEY_ID ||
+    !process.env.S3_SECRET_ACCESS_KEY
+  ) {
+    warnings.push("S3 storage is not configured. Using local filesystem for file uploads.");
   }
 
   // Log warnings in development
