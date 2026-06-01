@@ -51,7 +51,7 @@ If you use Claude Code, you can install the `create-agentic-app` skill and have 
 Install the skill:
 
 ```bash
-npx skills add leonvanzyl/agentic-coding-starter-kit@create-agentic-app --agent claude-code
+npx skills add stefanowitschdev/agentic-coding-starter-kit-web@create-agentic-app --agent claude-code
 ```
 
 The `--agent claude-code` flag is required. Without it, the installer drops the skill into 37+ IDE adapter folders at the project root.
@@ -403,6 +403,6 @@ This project is licensed under the MIT License.
 
 ## Need Help?
 
-- Check the repository issues: [github.com/leonvanzyl/agentic-coding-starter-kit/issues](https://github.com/leonvanzyl/agentic-coding-starter-kit/issues)
+- Check the repository issues: [github.com/stefanowitschdev/agentic-coding-starter-kit-web/issues](https://github.com/stefanowitschdev/agentic-coding-starter-kit-web/issues)
 - Review `AGENTS.md`, `CLAUDE.md`, and `DESIGN.md`
 - Open a new issue with the exact setup steps, error output, and environment details
