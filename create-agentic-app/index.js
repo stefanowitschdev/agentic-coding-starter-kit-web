@@ -202,7 +202,7 @@ async function main() {
     }
 
     console.log(chalk.cyan('  1. Update the .env file with your API keys and database credentials'));
-    console.log(chalk.cyan(`  2. Start the database: docker compose up -d`));
+    console.log(chalk.cyan(`  2. Start the database: docker compose up -d  (or: podman compose up -d)`));
     console.log(chalk.cyan(`  3. Run database migrations: ${packageManager} run db:migrate`));
     console.log(chalk.cyan(`  4. Start the development server: ${packageManager} run dev`));
 

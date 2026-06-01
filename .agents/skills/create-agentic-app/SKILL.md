@@ -39,6 +39,7 @@ pnpm --version
 npm --version
 yarn --version
 docker --version
+podman --version
 git --version
 ```
 
@@ -47,7 +48,7 @@ Interpret the results:
 - **Node.js** must be `>= 18`. If `node --version` fails or returns < 18, stop and tell the user to install Node 18+ from https://nodejs.org. Do not continue — every step from here on requires Node.
 - **Git** must be present (the scaffolder uses it). If missing, stop and direct the user to https://git-scm.com/downloads.
 - **Package managers**: remember which of `pnpm`, `npm`, `yarn` succeeded. Discard the ones that failed — you will never offer them as options in Step 3.
-- **Docker** is optional here; it only matters if the user picks the local-DB path in Step 6. Note whether `docker --version` succeeded.
+- **Docker / Podman** are optional here; a container engine only matters if the user picks the local-DB path in Step 6. Note whether `docker --version` **or** `podman --version` succeeded — either one satisfies the local-DB path. Remember which engine is available; the local-DB path uses whichever you found.
 
 Report findings as one short sentence to the user — for example: "Found Node 20.11, pnpm 9.1, npm 10.5, Docker 27.0, Git 2.43. Yarn not detected." Do not dump raw command output.
 
@@ -150,7 +151,7 @@ Tell the user: "I have set up `.env` with a fresh auth secret. Database URL and 
 Ask via `AskUserQuestion`:
 
 > "Which PostgreSQL setup do you want?"
-> - **Local Docker** *(only show if `docker --version` succeeded in Step 1)* — recommended for local development; uses the included `docker-compose.yml`.
+> - **Local container (Docker or Podman)** *(only show if `docker --version` **or** `podman --version` succeeded in Step 1)* — recommended for local development; uses the included `docker-compose.yml` with `docker compose` or `podman compose`.
 > - **Neon** — free serverless Postgres in the cloud (good for solo dev and small projects).
 > - **Vercel Postgres** — best if you plan to deploy to Vercel anyway.
 > - **Bring your own** — you have a `POSTGRES_URL` already.

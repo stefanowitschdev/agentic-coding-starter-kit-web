@@ -14,31 +14,35 @@ In every command below, `<pm>` is the package manager chosen in SKILL.md step 3 
 
 ---
 
-## Path A: Local Docker (recommended for local dev)
+## Path A: Local container (Docker or Podman)
 
 ### When to pick this
 
-The user is on a dev machine, wants zero external accounts, and has Docker installed. This is the default and matches the `POSTGRES_URL` already shipped in `env.example`.
+The user is on a dev machine, wants zero external accounts, and has a container engine installed. This is the default and matches the `POSTGRES_URL` already shipped in `env.example`.
+
+**Container engine:** use `docker` if it is available, otherwise `podman` — pick whichever was detected in SKILL.md step 1. The commands below are identical for both engines; substitute the engine name (`docker` ↔ `podman`, `docker compose` ↔ `podman compose`). In the rest of this section, `<engine>` means the chosen one.
 
 ### Prerequisites
 
-- Docker Desktop installed and the daemon running. On Windows, the Docker Desktop app must be open — `docker info` will fail otherwise.
+- A running container engine:
+  - **Docker** — Docker Desktop installed and the daemon running. On Windows/macOS, the Docker Desktop app must be open — `docker info` will fail otherwise.
+  - **Podman** — Podman installed. On macOS/Windows the Podman machine must be started (`podman machine start`); rootless Podman on Linux works out of the box. `podman compose` also needs a compose provider on the host (`docker-compose` or `podman-compose`); if it errors with `looking up compose provider failed`, install one (e.g. `pip install podman-compose`) or use the `podman-compose` command directly.
 - Port `5432` free on the host. If another Postgres (or anything else) is bound to `5432`, the container will fail to start.
 
 ### Exact steps
 
-1. Confirm Docker is reachable. The agent runs:
+1. Confirm the engine is reachable. The agent runs:
 
    ```bash
-   docker info
+   <engine> info
    ```
 
-   If this errors with `Cannot connect to the Docker daemon` or `error during connect`, stop and tell the user to start Docker Desktop, then retry.
+   If `docker info` errors with `Cannot connect to the Docker daemon` or `error during connect`, stop and tell the user to start Docker Desktop, then retry. If `podman info` errors, tell the user to run `podman machine start` (macOS/Windows), then retry.
 
 2. From the project root, start the database in the background:
 
    ```bash
-   docker compose up -d
+   <engine> compose up -d
    ```
 
    This pulls `pgvector/pgvector:pg18` on first run (can take a minute) and starts a container with database `postgres_dev`, user `dev_user`, password `dev_password`, exposed on host port `5432`.
@@ -62,7 +66,7 @@ postgresql://dev_user:dev_password@localhost:5432/postgres_dev
 Before running migrations, confirm the container is up and accepting connections:
 
 ```bash
-docker ps --filter "ancestor=pgvector/pgvector:pg18"
+<engine> ps --filter "ancestor=pgvector/pgvector:pg18"
 ```
 
 The container should show status `Up` (a few seconds is enough — `pg18` boots fast). If the user has `psql` installed, a quick smoke test:
@@ -77,7 +81,8 @@ psql "postgresql://dev_user:dev_password@localhost:5432/postgres_dev" -c "select
 
 - **`port is already allocated` / `bind: address already in use`** — something else is on `5432`. Either stop the other process, or edit `docker-compose.yml` to map a different host port (e.g. `"55432:5432"`) and update the port in `POSTGRES_URL` to match.
 - **`Cannot connect to the Docker daemon`** — Docker Desktop is not running. Start it and retry `docker compose up -d`.
-- **Container starts then exits** — run `docker compose logs postgres` to see the Postgres startup error (usually a stale volume from an older Postgres major version). If the user has no data to keep, `docker compose down -v` clears the volume and lets the new image initialize cleanly.
+- **`cannot connect to Podman` / `podman info` fails** — the Podman machine is not running. Run `podman machine start` (macOS/Windows) and retry `podman compose up -d`.
+- **Container starts then exits** — run `<engine> compose logs postgres` to see the Postgres startup error (usually a stale volume from an older Postgres major version). If the user has no data to keep, `<engine> compose down -v` clears the volume and lets the new image initialize cleanly.
 
 ---
 

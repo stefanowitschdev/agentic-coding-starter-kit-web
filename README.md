@@ -14,7 +14,7 @@ The goal is simple: install the starter, describe the product you want to build,
 - **S3-compatible object storage** (Hetzner, MinIO, AWS, R2) with a local fallback
 - **React Hook Form and Zod** for forms and validation
 - **Playwright** for end-to-end tests
-- **Docker / Coolify-ready** deployment (standalone output + Dockerfile)
+- **Docker / Podman / Coolify-ready** deployment (standalone output + Dockerfile)
 - **AI SDK and OpenRouter** for optional chat and AI features
 - **shadcn/ui, Tailwind CSS, and Lucide icons** for the UI foundation
 - **Agent instructions** through `AGENTS.md` and `CLAUDE.md`
@@ -39,7 +39,7 @@ Then configure and run the app:
 
 ```bash
 cp env.example .env
-docker compose up -d
+docker compose up -d   # or: podman compose up -d
 pnpm db:migrate
 pnpm dev
 ```
@@ -72,7 +72,7 @@ Claude will run the skill end-to-end and ask you the few decisions it actually n
 
 - Node.js 20 or newer
 - Git
-- Docker (for the included PostgreSQL service and for building the deployment image)
+- Docker **or** Podman (for the included PostgreSQL service and for building the deployment image). For `podman compose`, also install a compose provider (`docker-compose` or `podman-compose`).
 - A package manager: `pnpm`, `npm`, or `yarn`
 - Optional: a Resend API key for sending real transactional emails
 - Optional: S3-compatible object storage credentials for remote file uploads
@@ -300,7 +300,7 @@ Do not use schema push as a replacement for migrations in real project work.
 For local development:
 
 ```bash
-docker compose up -d
+docker compose up -d   # or: podman compose up -d
 pnpm db:migrate
 ```
 
@@ -341,11 +341,18 @@ The app chooses the storage backend based on whether the S3 credentials are conf
 
 ## Deployment
 
-The app builds to a standalone server (`output: "standalone"`) and ships a `Dockerfile`, so it runs on any Docker host — **Coolify**, Hetzner, Fly, or a plain VPS.
+The app builds to a standalone server (`output: "standalone"`) and ships a `Dockerfile`, so it runs on any Docker- or Podman-compatible host — **Coolify**, Hetzner, Fly, or a plain VPS.
 
 ```bash
 docker build -t my-app .
 docker run -p 3000:3000 --env-file .env my-app
+```
+
+The same `Dockerfile` builds and runs unchanged with Podman:
+
+```bash
+podman build -t my-app .
+podman run -p 3000:3000 --env-file .env my-app
 ```
 
 Set the required production environment variables:
@@ -380,10 +387,10 @@ The Playwright config starts the dev server automatically for local runs. In CI,
 
 ### The app cannot connect to Postgres
 
-Confirm Docker is running and start the database:
+Confirm Docker (or Podman) is running and start the database:
 
 ```bash
-docker compose up -d
+docker compose up -d   # or: podman compose up -d
 ```
 
 Then check that `POSTGRES_URL` in `.env` matches the database connection string.
