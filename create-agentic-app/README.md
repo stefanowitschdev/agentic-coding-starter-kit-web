@@ -54,7 +54,7 @@ This starter kit includes:
 After creating your project:
 
 1. **Update environment variables**: Edit `.env` with your API keys and database credentials
-2. **Start the database**: `docker compose up -d`
+2. **Start the database**: `docker compose up -d` (or `podman compose up -d`)
 3. **Run migrations**: `pnpm run db:migrate` (or `npm`/`yarn`)
 4. **Start dev server**: `pnpm run dev`
 

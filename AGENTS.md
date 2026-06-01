@@ -45,7 +45,7 @@
 
 ## DEPLOYMENT
 
-- The app builds to a standalone server (`output: "standalone"`) with a `Dockerfile`; it targets any Docker host (Coolify, Hetzner, VPS).
+- The app builds to a standalone server (`output: "standalone"`) with a `Dockerfile`; it targets any Docker- or Podman-compatible host (Coolify, Hetzner, VPS). The same `Dockerfile` and `docker-compose.yml` work unchanged with `podman build` / `podman compose`.
 - Do **not** run database migrations during the build. `pnpm build` is `next build` only. Run `pnpm db:migrate` as a separate release/pre-deploy step.
 
 ## UI DESIGN
