@@ -29,7 +29,24 @@
 
 - Use any testing tools, libraries available to the project for testing your changes
 - Never assume your changes simply work, always test!
+- This project uses **Playwright** for end-to-end tests in `e2e/`. They run against your local database (`POSTGRES_URL` from `.env`) — start it with `podman compose up -d` and run `pnpm db:migrate` first, then `pnpm test:e2e`. Add a test for new user-facing flows.
 - If the project does not have any testing tools, scripts, MCP tools, skills, etc. available for testing, ask the user whether testing should be skipped.
+
+## STACK
+
+- **Framework:** Next.js (App Router) + React 19 + TypeScript
+- **Auth:** Better Auth (email/password; Drizzle adapter)
+- **DB/ORM:** PostgreSQL + Drizzle ORM (postgres-js driver)
+- **Email:** Resend + React Email via `src/lib/mail` (console fallback without `RESEND_API_KEY`)
+- **Storage:** S3-compatible via `src/lib/storage.ts` (local filesystem fallback)
+- **Forms:** React Hook Form + Zod with the shadcn `form` component
+- **AI (optional):** Vercel AI SDK + OpenRouter
+- Keep these provider integrations generic — do not hard-code project-specific business logic into the storage, mail, or auth libraries.
+
+## DEPLOYMENT
+
+- The app builds to a standalone server (`output: "standalone"`) with a `Dockerfile`; it targets any Docker- or Podman-compatible host (Coolify, Hetzner, VPS). The same `Dockerfile` and `compose.yml` work unchanged with `podman build` / `podman compose`.
+- Do **not** run database migrations during the build. `pnpm build` is `next build` only. Run `pnpm db:migrate` as a separate release/pre-deploy step.
 
 ## UI DESIGN
 

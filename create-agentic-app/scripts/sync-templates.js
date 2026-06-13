@@ -35,7 +35,9 @@ const excludePatterns = [
   'yarn.lock',
   'tsconfig.tsbuildinfo',
   '.env',
-  'create-agentic-app'
+  'create-agentic-app',
+  'test-results',
+  'playwright-report'
 ];
 
 // Check if a path should be excluded

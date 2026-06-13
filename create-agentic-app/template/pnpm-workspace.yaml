@@ -1,0 +1,13 @@
+allowBuilds:
+  esbuild: true
+  msw: true
+  sharp: true
+  unrs-resolver: true
+overrides:
+  "@types/react": 19.2.17
+  "@types/react-dom": 19.2.3
+  # Force esbuild (pulled in only via the drizzle-kit dev toolchain) up to a
+  # patched release. Floor of 0.28.1 clears the dev-server, arbitrary-file-read
+  # and binary-integrity advisories (GHSA-67mh-4wv8-2f99, GHSA-g7r4-m6w7-qqqr,
+  # GHSA-36qx-fr4f-26g5).
+  esbuild: ">=0.28.1"
