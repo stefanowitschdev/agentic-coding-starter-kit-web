@@ -91,7 +91,7 @@ jobs:
     needs: [build]
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_DB: postgres_dev
           POSTGRES_USER: dev_user

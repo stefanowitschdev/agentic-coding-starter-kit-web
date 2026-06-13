@@ -29,7 +29,7 @@
 
 - Use any testing tools, libraries available to the project for testing your changes
 - Never assume your changes simply work, always test!
-- This project uses **Playwright** for end-to-end tests in `e2e/`. Run them with `pnpm test:e2e`. Add a test for new user-facing flows.
+- This project uses **Playwright** for end-to-end tests in `e2e/`. They run against your local database (`POSTGRES_URL` from `.env`) — start it with `podman compose up -d` and run `pnpm db:migrate` first, then `pnpm test:e2e`. Add a test for new user-facing flows.
 - If the project does not have any testing tools, scripts, MCP tools, skills, etc. available for testing, ask the user whether testing should be skipped.
 
 ## STACK
@@ -45,7 +45,7 @@
 
 ## DEPLOYMENT
 
-- The app builds to a standalone server (`output: "standalone"`) with a `Dockerfile`; it targets any Docker- or Podman-compatible host (Coolify, Hetzner, VPS). The same `Dockerfile` and `docker-compose.yml` work unchanged with `podman build` / `podman compose`.
+- The app builds to a standalone server (`output: "standalone"`) with a `Dockerfile`; it targets any Docker- or Podman-compatible host (Coolify, Hetzner, VPS). The same `Dockerfile` and `compose.yml` work unchanged with `podman build` / `podman compose`.
 - Do **not** run database migrations during the build. `pnpm build` is `next build` only. Run `pnpm db:migrate` as a separate release/pre-deploy step.
 
 ## UI DESIGN

@@ -19,8 +19,11 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // Starts the app for local runs. In CI, start the server in a separate step
-  // and point PLAYWRIGHT_BASE_URL at it, or let this reuse it.
+  // Starts the app for local runs against the database from your .env
+  // (POSTGRES_URL). Make sure the dev database is running and migrated first:
+  //   podman compose up -d   # or: docker compose up -d
+  //   pnpm db:migrate
+  // In CI, start the server in a separate step and point PLAYWRIGHT_BASE_URL at it.
   webServer: {
     command: "pnpm dev",
     url: baseURL,
