@@ -4,7 +4,7 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 overrides:
-  "@types/react": 19.2.5
+  "@types/react": 19.2.17
   "@types/react-dom": 19.2.3
   # Force esbuild (pulled in only via the drizzle-kit dev toolchain) up to a
   # patched release. Floor of 0.28.1 clears the dev-server, arbitrary-file-read
