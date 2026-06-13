@@ -39,7 +39,7 @@ Then configure and run the app:
 
 ```bash
 cp env.example .env
-docker compose up -d   # or: podman compose up -d
+podman compose up -d   # or: docker compose up -d
 pnpm db:migrate
 pnpm dev
 ```
@@ -113,7 +113,7 @@ OPENROUTER_MODEL="openai/gpt-5-mini"
 OPENAI_EMBEDDING_MODEL="text-embedding-3-large"
 ```
 
-For local development, the default database URL works with the included `docker-compose.yml`. For production, use the database URL from your hosting provider.
+For local development, the default database URL works with the included `compose.yml`. For production, use the database URL from your hosting provider.
 
 Generate a strong `BETTER_AUTH_SECRET` before deploying. The starter ships with a development value only so you can get moving quickly.
 
@@ -263,7 +263,7 @@ Important root files:
 - `CLAUDE.md`: Claude entrypoint for the same guidance
 - `DESIGN.md`: UI design system and component guidance
 - `drizzle.config.ts`: Drizzle migration configuration
-- `docker-compose.yml`: local PostgreSQL service
+- `compose.yml`: local PostgreSQL service
 - `env.example`: environment variable template
 - `components.json`: shadcn/ui configuration
 
@@ -300,7 +300,7 @@ Do not use schema push as a replacement for migrations in real project work.
 For local development:
 
 ```bash
-docker compose up -d   # or: podman compose up -d
+podman compose up -d   # or: docker compose up -d
 pnpm db:migrate
 ```
 
@@ -374,14 +374,22 @@ On Coolify, configure this as a pre-deploy command; in CI, run it behind a manua
 
 ## Testing
 
-End-to-end tests live in `e2e/` and run with Playwright:
+End-to-end tests live in `e2e/` and run with Playwright against your local
+database (the `POSTGRES_URL` from `.env`). Make sure the database is running and
+migrated first:
 
 ```bash
 pnpm exec playwright install   # one-time: download browsers
+podman compose up -d           # or: docker compose up -d
+pnpm db:migrate
 pnpm test:e2e
 ```
 
-The Playwright config starts the dev server automatically for local runs. In CI, a PostgreSQL service is provisioned, migrations are applied, and the smoke tests run after the build (see `.github/workflows/ci.yml`).
+Playwright starts the dev server automatically for local runs. The suite
+includes a real register → sign-out → sign-in flow (using a unique email per
+run) alongside the static smoke tests. In CI, a PostgreSQL service is
+provisioned, migrations are applied, and the suite runs after the build (see
+`.github/workflows/ci.yml`).
 
 ## Troubleshooting
 
@@ -390,7 +398,7 @@ The Playwright config starts the dev server automatically for local runs. In CI,
 Confirm Docker (or Podman) is running and start the database:
 
 ```bash
-docker compose up -d   # or: podman compose up -d
+podman compose up -d   # or: docker compose up -d
 ```
 
 Then check that `POSTGRES_URL` in `.env` matches the database connection string.
