@@ -1,7 +1,7 @@
 services:
   postgres:
     # Pin the major version to match your production database (e.g. Coolify/Hetzner).
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_DB: postgres_dev
       POSTGRES_USER: dev_user
