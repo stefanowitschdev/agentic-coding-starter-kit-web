@@ -24,7 +24,9 @@ This creates a minimal `standalone` folder with only production dependencies:
 └── static/                # Must be copied separately
 ```
 
-## Docker Deployment
+## Docker (or Podman) Deployment
+
+> Podman is a drop-in alternative to Docker here. The same `Dockerfile` and Compose file below build and run unchanged — substitute `podman build` for `docker build` and `podman compose up` for `docker compose up`.
 
 ### Dockerfile
 

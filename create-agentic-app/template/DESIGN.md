@@ -9,6 +9,7 @@ This document defines the visual design system for the project. All new componen
 - **Framework:** Next.js (App Router) + React + TypeScript
 - **Styling:** Tailwind CSS v4 (CSS-first config via `@theme inline` in `globals.css` — no `tailwind.config.ts`)
 - **Components:** shadcn/ui (new-york style, neutral base)
+- **Forms:** React Hook Form + Zod via the shadcn `form` component (`@/components/ui/form`)
 - **Icons:** Lucide React
 - **Fonts:** Geist (sans) + Geist Mono (mono) via `next/font/google`
 - **Dark mode:** next-themes (class-based, system default)

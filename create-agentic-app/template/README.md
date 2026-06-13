@@ -10,9 +10,13 @@ The goal is simple: install the starter, describe the product you want to build,
 - **TypeScript** and a strict project setup
 - **Better Auth** with email/password enabled by default
 - **PostgreSQL and Drizzle ORM** for schema and migrations
-- **AI SDK and OpenRouter** for chat and AI features
+- **Resend and React Email** for transactional email (with a console fallback)
+- **S3-compatible object storage** (Hetzner, MinIO, AWS, R2) with a local fallback
+- **React Hook Form and Zod** for forms and validation
+- **Playwright** for end-to-end tests
+- **Docker / Podman / Coolify-ready** deployment (standalone output + Dockerfile)
+- **AI SDK and OpenRouter** for optional chat and AI features
 - **shadcn/ui, Tailwind CSS, and Lucide icons** for the UI foundation
-- **Local or Vercel Blob file storage** through one storage abstraction
 - **Agent instructions** through `AGENTS.md` and `CLAUDE.md`
 - **Agent skills** for specs, implementation, reviews, security scans, UI work, and shipping
 
@@ -35,7 +39,7 @@ Then configure and run the app:
 
 ```bash
 cp env.example .env
-docker compose up -d
+podman compose up -d   # or: docker compose up -d
 pnpm db:migrate
 pnpm dev
 ```
@@ -46,7 +50,7 @@ The CLI copies the starter files, installs dependencies with your selected packa
 
 ## Guided Setup with Claude Code (Optional)
 
-If you use Claude Code, you can install the `create-agentic-app` skill and have Claude walk you through the entire setup — folder strategy, package manager, PostgreSQL (Docker / Neon / Vercel / BYO), `.env` config, migrations, optional integrations (OpenRouter, Vercel Blob, Polar, email), build verification, and dev-server check — ending at a verified `http://localhost:3000`.
+If you use Claude Code, you can install the `create-agentic-app` skill and have Claude walk you through the entire setup — folder strategy, package manager, PostgreSQL (Docker / hosted / BYO), `.env` config, migrations, optional integrations (Resend email, S3 storage, OpenRouter), build verification, and dev-server check — ending at a verified `http://localhost:3000`.
 
 Install the skill:
 
@@ -66,12 +70,13 @@ Claude will run the skill end-to-end and ask you the few decisions it actually n
 
 ## Prerequisites
 
-- Node.js 18 or newer
+- Node.js 20 or newer
 - Git
-- PostgreSQL, either through the included Docker Compose file or a hosted provider
+- Docker **or** Podman (for the included PostgreSQL service and for building the deployment image). For `podman compose`, also install a compose provider (`docker-compose` or `podman-compose`).
 - A package manager: `pnpm`, `npm`, or `yarn`
+- Optional: a Resend API key for sending real transactional emails
+- Optional: S3-compatible object storage credentials for remote file uploads
 - Optional: an OpenRouter API key for AI chat features
-- Optional: a Vercel account for deployment, hosted Postgres, and Blob storage
 
 ## Environment Variables
 
@@ -84,25 +89,31 @@ POSTGRES_URL=postgresql://dev_user:dev_password@localhost:5432/postgres_dev
 # Authentication - Better Auth
 BETTER_AUTH_SECRET=your-random-secret
 
-# AI Integration via OpenRouter
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_NAME="Your App"
+
+# Transactional email - Resend (optional; console fallback when unset)
+RESEND_API_KEY=
+EMAIL_FROM="onboarding@resend.dev"
+
+# File storage - S3-compatible (optional; local fallback when unset)
+S3_ENDPOINT=
+S3_REGION="auto"
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_BUCKET=
+S3_PUBLIC_URL=
+
+# AI Integration via OpenRouter (optional)
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL="openai/gpt-5-mini"
 
 # Optional - for vector search only
 OPENAI_EMBEDDING_MODEL="text-embedding-3-large"
-
-# App URL
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# File storage
-BLOB_READ_WRITE_TOKEN=
-
-# Polar payment processing
-POLAR_WEBHOOK_SECRET=polar_
-POLAR_ACCESS_TOKEN=polar_
 ```
 
-For local development, the default database URL works with the included `docker-compose.yml`. For production, use the database URL from your hosting provider.
+For local development, the default database URL works with the included `compose.yml`. For production, use the database URL from your hosting provider.
 
 Generate a strong `BETTER_AUTH_SECRET` before deploying. The starter ships with a development value only so you can get moving quickly.
 
@@ -118,7 +129,7 @@ The current auth setup includes:
 - password reset flow
 - email verification flow
 
-In development, verification and password reset links are logged to the terminal instead of being sent through an email provider. When you are ready for production, ask your coding agent to connect an email service and update the Better Auth email callbacks.
+Email verification and password reset are wired to **Resend** through `src/lib/mail` with templates in `src/emails`. When `RESEND_API_KEY` is not set, emails are logged to the terminal instead, so you can develop without an email account. Set `RESEND_API_KEY` and `EMAIL_FROM` to send real emails in production.
 
 ### Adding Google OAuth
 
@@ -227,20 +238,24 @@ src/
 │   └── page.tsx
 ├── components/
 │   ├── auth/
-│   ├── ui/
+│   ├── ui/                  # shadcn/ui primitives (incl. form.tsx)
 │   ├── site-footer.tsx
 │   └── site-header.tsx
+├── emails/                  # React Email templates
 ├── hooks/
 └── lib/
     ├── auth.ts
     ├── auth-client.ts
     ├── db.ts
     ├── env.ts
+    ├── mail/                # Resend mailer (console fallback)
     ├── schema.ts
     ├── session.ts
-    ├── storage.ts
+    ├── storage.ts           # S3-compatible storage (local fallback)
     └── utils.ts
 ```
+
+The repository root also includes a `Dockerfile`, `.dockerignore`, `playwright.config.ts`, and an `e2e/` test folder.
 
 Important root files:
 
@@ -248,7 +263,7 @@ Important root files:
 - `CLAUDE.md`: Claude entrypoint for the same guidance
 - `DESIGN.md`: UI design system and component guidance
 - `drizzle.config.ts`: Drizzle migration configuration
-- `docker-compose.yml`: local PostgreSQL service
+- `compose.yml`: local PostgreSQL service
 - `env.example`: environment variable template
 - `components.json`: shadcn/ui configuration
 
@@ -256,12 +271,13 @@ Important root files:
 
 ```bash
 pnpm dev           # Start the development server with Turbopack
-pnpm build         # Run migrations, then build for production
-pnpm build:ci      # Build without running migrations
+pnpm build         # Build for production (no migrations)
+pnpm build:ci      # Build for production (alias used in CI)
 pnpm start         # Start the production server
 pnpm lint          # Run ESLint
 pnpm typecheck     # Run TypeScript without emitting files
 pnpm check         # Run lint and typecheck
+pnpm test:e2e      # Run Playwright end-to-end tests
 pnpm format        # Format the repository
 pnpm format:check  # Check formatting
 pnpm setup         # Run the setup script
@@ -284,7 +300,7 @@ Do not use schema push as a replacement for migrations in real project work.
 For local development:
 
 ```bash
-docker compose up -d
+podman compose up -d   # or: docker compose up -d
 pnpm db:migrate
 ```
 
@@ -295,11 +311,11 @@ pnpm db:generate
 pnpm db:migrate
 ```
 
-If you deploy to Vercel or another hosted environment, set `POSTGRES_URL` in that environment before running migrations or building the app.
+When deploying, set `POSTGRES_URL` in that environment and run `pnpm db:migrate` as a release step before the new version serves traffic.
 
 ## AI Features
 
-The starter uses the Vercel AI SDK with OpenRouter. Set these variables to enable AI chat:
+AI chat is an **optional module**. The starter uses the Vercel AI SDK with OpenRouter. If you don't need AI, you can remove the `chat` page, the `src/app/api/chat` route, and the `ai`, `@ai-sdk/react`, and `@openrouter/ai-sdk-provider` dependencies. To enable AI chat, set these variables:
 
 ```env
 OPENROUTER_API_KEY=sk-or-v1-your-key
@@ -310,25 +326,33 @@ OpenRouter lets you switch models without changing the application code. Update 
 
 ## File Storage
 
-The starter includes a storage abstraction that can use local storage in development or Vercel Blob in production.
+The starter includes a storage abstraction (`src/lib/storage.ts`) that uses an **S3-compatible** backend when configured and falls back to local filesystem storage otherwise. It works with Hetzner Object Storage, MinIO, AWS S3, Cloudflare R2, and any other S3-compatible provider. It also exposes `getUploadUrl` / `getDownloadUrl` helpers for pre-signed URLs.
 
-For local development, leave `BLOB_READ_WRITE_TOKEN` empty. Files are stored under `public/uploads/`.
+For local development, leave the `S3_*` variables empty. Files are stored under `public/uploads/`.
 
-For Vercel Blob:
+To use a remote bucket, set:
 
-1. Create a Blob store in Vercel.
-2. Copy the `BLOB_READ_WRITE_TOKEN`.
-3. Add it to your production environment variables.
+- `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
+- `S3_REGION` (use `auto` for many providers)
+- `S3_ENDPOINT` (leave empty for AWS S3; set it for Hetzner/MinIO/R2)
+- `S3_PUBLIC_URL` (optional public/CDN base URL for object access)
 
-The app chooses the storage backend based on whether `BLOB_READ_WRITE_TOKEN` is configured.
+The app chooses the storage backend based on whether the S3 credentials are configured.
 
 ## Deployment
 
-Vercel is the recommended deployment target.
+The app builds to a standalone server (`output: "standalone"`) and ships a `Dockerfile`, so it runs on any Docker- or Podman-compatible host — **Coolify**, Hetzner, Fly, or a plain VPS.
 
 ```bash
-npm install -g vercel
-vercel --prod
+docker build -t my-app .
+docker run -p 3000:3000 --env-file .env my-app
+```
+
+The same `Dockerfile` builds and runs unchanged with Podman:
+
+```bash
+podman build -t my-app .
+podman run -p 3000:3000 --env-file .env my-app
 ```
 
 Set the required production environment variables:
@@ -336,21 +360,45 @@ Set the required production environment variables:
 - `POSTGRES_URL`
 - `BETTER_AUTH_SECRET`
 - `NEXT_PUBLIC_APP_URL`
-- `OPENROUTER_API_KEY`, if using AI features
-- `OPENROUTER_MODEL`, if using AI features
-- `BLOB_READ_WRITE_TOKEN`, if using Vercel Blob
-- `POLAR_WEBHOOK_SECRET` and `POLAR_ACCESS_TOKEN`, if using Polar payments
+- `RESEND_API_KEY` and `EMAIL_FROM`, to send real emails
+- `S3_*`, if using remote file storage
+- `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`, if using AI features
 
-The default `pnpm build` script runs database migrations before `next build`. If your CI or host should not run migrations during build, use `pnpm build:ci` and run migrations as a separate deployment step.
+Database migrations are **not** run during the build (a container build has no database access). Run them as a separate release/pre-deploy step:
+
+```bash
+pnpm db:migrate
+```
+
+On Coolify, configure this as a pre-deploy command; in CI, run it behind a manual approval gate before deploying. The `.github/workflows/ci.yml` file includes a commented-out Coolify webhook deploy job you can enable.
+
+## Testing
+
+End-to-end tests live in `e2e/` and run with Playwright against your local
+database (the `POSTGRES_URL` from `.env`). Make sure the database is running and
+migrated first:
+
+```bash
+pnpm exec playwright install   # one-time: download browsers
+podman compose up -d           # or: docker compose up -d
+pnpm db:migrate
+pnpm test:e2e
+```
+
+Playwright starts the dev server automatically for local runs. The suite
+includes a real register → sign-out → sign-in flow (using a unique email per
+run) alongside the static smoke tests. In CI, a PostgreSQL service is
+provisioned, migrations are applied, and the suite runs after the build (see
+`.github/workflows/ci.yml`).
 
 ## Troubleshooting
 
 ### The app cannot connect to Postgres
 
-Confirm Docker is running and start the database:
+Confirm Docker (or Podman) is running and start the database:
 
 ```bash
-docker compose up -d
+podman compose up -d   # or: docker compose up -d
 ```
 
 Then check that `POSTGRES_URL` in `.env` matches the database connection string.
