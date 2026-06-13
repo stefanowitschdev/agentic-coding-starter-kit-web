@@ -11,3 +11,10 @@ overrides:
   # and binary-integrity advisories (GHSA-67mh-4wv8-2f99, GHSA-g7r4-m6w7-qqqr,
   # GHSA-36qx-fr4f-26g5).
   esbuild: ">=0.28.1"
+  # postcss: Next bundles a vulnerable postcss (<8.5.10). Floor clears the
+  # CSS-stringify XSS advisory GHSA-qx2v-qp2m-jg93 (build-time CSS processing).
+  postcss: ">=8.5.10"
+  # qs / hono: pulled in only via the shadcn dev CLI (-> @modelcontextprotocol/sdk).
+  # Patch floors clear GHSA advisories in dev-only tooling; not shipped at runtime.
+  qs: ">=6.15.2"
+  hono: ">=4.12.21"
