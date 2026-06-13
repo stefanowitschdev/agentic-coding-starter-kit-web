@@ -7,13 +7,16 @@
 # Run them as a separate release/pre-deploy step, e.g. `pnpm db:migrate`
 # (see README "Deployment").
 
-FROM node:20-alpine AS base
-RUN npm install -g pnpm@9
+FROM node:22-alpine AS base
+# Use the pnpm version pinned in package.json's "packageManager" field via corepack.
+RUN corepack enable
 
 # --- Dependencies ---
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+# pnpm-workspace.yaml carries the build-script allowlist (allowBuilds) and
+# overrides, so it must be present for the install to behave like local/CI.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # --- Build ---
