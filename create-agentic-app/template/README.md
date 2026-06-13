@@ -70,7 +70,7 @@ Claude will run the skill end-to-end and ask you the few decisions it actually n
 
 ## Prerequisites
 
-- Node.js 20 or newer
+- Node.js 22 or newer (the pinned `pnpm` requires Node 22.13+)
 - Git
 - Docker **or** Podman (for the included PostgreSQL service and for building the deployment image). For `podman compose`, also install a compose provider (`docker-compose` or `podman-compose`).
 - A package manager: `pnpm`, `npm`, or `yarn`
