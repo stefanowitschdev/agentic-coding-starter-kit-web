@@ -122,8 +122,12 @@ export async function GET(req: Request) {
     env.BETTER_AUTH_SECRET && env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET;
   const aiConfigured = env.OPENROUTER_API_KEY; // We avoid live-calling the AI provider here
 
-  // Storage configuration check
-  const storageConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  // Storage configuration check (S3-compatible backend)
+  const storageConfigured = Boolean(
+    process.env.S3_BUCKET &&
+      process.env.S3_ACCESS_KEY_ID &&
+      process.env.S3_SECRET_ACCESS_KEY
+  );
   const storageType: "local" | "remote" = storageConfigured ? "remote" : "local";
 
   const overallStatus: StatusLevel = (() => {

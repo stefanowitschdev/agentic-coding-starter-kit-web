@@ -8,5 +8,7 @@ if (!connectionString) {
   throw new Error("POSTGRES_URL environment variable is not set");
 }
 
+// For a managed/remote Postgres that requires TLS, append `?sslmode=require` to
+// POSTGRES_URL (postgres-js reads SSL options from the connection string).
 const client = postgres(connectionString);
 export const db = drizzle(client, { schema });
